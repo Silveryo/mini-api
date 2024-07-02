@@ -1,4 +1,4 @@
-import Elysia, { Static, t } from "elysia";
+import Elysia, { t } from "elysia";
 import e from "../../dbschema/edgeql-js";
 import db from "../../dbschema";
 import { Being } from "../../dbschema/interfaces";
@@ -13,10 +13,7 @@ const actions = {
   },
   store: async (req: Omit<Being, "id">) => {
     const q = e.insert(e.Being, {
-      name: req.name,
-      strength: req.strength,
-      dexterity: req.dexterity,
-      intelligence: req.intelligence,
+      ...req,
     });
 
     return await q.run(db);
@@ -34,12 +31,7 @@ const actions = {
     const q = e.update(e.Being, () => ({
       filter_single: { id },
 
-      set: {
-        name: req.name,
-        strength: req.strength,
-        dexterity: req.dexterity,
-        intelligence: req.intelligence,
-      },
+      set: req,
     }));
 
     return await q.run(db);
@@ -60,8 +52,6 @@ const being_model = t.Object({
   dexterity: t.Number(),
   intelligence: t.Number(),
 });
-
-type T = Static<typeof being_model>;
 
 const being_models = new Elysia().model({
   being: being_model,
